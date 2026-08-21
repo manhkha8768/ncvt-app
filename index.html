@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f2240">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NCVT">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<title>KHO VẬT TƯ NCVT</title>
+<style>
+html,body{height:100%;margin:0;background:#0f2240;font-family:Arial,sans-serif}
+body{overflow:hidden} .shell{height:100%;display:flex;flex-direction:column}
+.bar{height:42px;display:flex;align-items:center;padding:0 10px;background:#0f2240;color:#fff;box-shadow:0 1px 8px #0004;gap:8px}
+.bar img{width:30px;height:30px;border-radius:8px} .bar strong{font-size:14px} .spacer{flex:1}
+.status{font-size:11px;opacity:.8} .install{display:none;border:0;border-radius:7px;padding:6px 10px;background:#fff;color:#0f2240;font-weight:700}
+iframe{border:0;width:100%;flex:1;background:#f4f7fb}
+.offline{display:none;position:fixed;inset:42px 0 0;background:#f4f7fb;z-index:10;align-items:center;justify-content:center;text-align:center;padding:24px}
+.offline .box{background:#fff;border-radius:14px;padding:24px;max-width:420px;box-shadow:0 5px 25px #0002}
+@media(max-width:600px){.bar strong{font-size:12px}.status{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="bar">
+    <img src="./icon-192.png" alt="DMK"><strong>KHO VẬT TƯ NCVT</strong>
+    <span class="status" id="status">Đang kết nối</span><span class="spacer"></span>
+    <button class="install" id="installBtn">Cài ứng dụng</button>
+  </div>
+  <iframe id="ncvtFrame" src="https://script.google.com/macros/s/AKfycbx6xsaqslU02QbJ5g5JtQnRN9igrftg_yGi6R7DOf-bmH90jGxllnxpQimMlKXm5oWPRA/exec" allow="clipboard-read; clipboard-write"></iframe>
+</div>
+<div class="offline" id="offlineView"><div class="box">
+  <img src="./icon-192.png" width="92" height="92" alt="DMK">
+  <h2>NCVT đang ngoại tuyến</h2>
+  <p>Cần Internet để lấy dữ liệu vật tư mới nhất từ Google Sheets.</p>
+  <button onclick="location.reload()">Thử lại</button>
+</div></div>
+<script>
+const statusEl=document.getElementById('status'), offlineView=document.getElementById('offlineView'), installBtn=document.getElementById('installBtn');
+let deferredPrompt=null;
+function onlineState(){const ok=navigator.onLine;statusEl.textContent=ok?'Đã kết nối':'Mất kết nối';offlineView.style.display=ok?'none':'flex'}
+addEventListener('online',onlineState);addEventListener('offline',onlineState);onlineState();
+if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='inline-block'});
+installBtn.onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;installBtn.style.display='none'};
+addEventListener('appinstalled',()=>installBtn.style.display='none');
+</script>
+</body></html>
